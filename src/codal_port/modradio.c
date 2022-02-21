@@ -41,6 +41,7 @@ STATIC void ensure_enabled(void) {
 }
 
 STATIC mp_obj_t mod_radio_reset(void) {
+    #if 0
     radio_config.max_payload = MICROBIT_RADIO_DEFAULT_MAX_PAYLOAD;
     radio_config.queue_len = MICROBIT_RADIO_DEFAULT_QUEUE_LEN;
     radio_config.channel = MICROBIT_RADIO_DEFAULT_CHANNEL;
@@ -48,6 +49,7 @@ STATIC mp_obj_t mod_radio_reset(void) {
     radio_config.base0 = MICROBIT_RADIO_DEFAULT_BASE0;
     radio_config.prefix0 = MICROBIT_RADIO_DEFAULT_PREFIX0;
     radio_config.data_rate = MICROBIT_RADIO_DEFAULT_DATA_RATE;
+    #endif
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_reset_obj, mod_radio_reset);
@@ -99,11 +101,13 @@ STATIC mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map
                 }
 
                 case MP_QSTR_data_rate:
+                    #if 0
                     if (!(value == 2 /* allow 250K if the user really wants it */
                         || value == RADIO_MODE_MODE_Nrf_1Mbit
                         || value == RADIO_MODE_MODE_Nrf_2Mbit)) {
                         goto value_error;
                     }
+                    #endif
                     new_config.data_rate = value;
                     break;
 
@@ -271,8 +275,10 @@ STATIC const mp_map_elem_t radio_module_globals_table[] = {
     // rate by using a value of "2" if necessary to communicate with a micro:bit v1.
     //{ MP_OBJ_NEW_QSTR(MP_QSTR_RATE_250KBIT), MP_OBJ_NEW_SMALL_INT(RADIO_MODE_MODE_Nrf_250Kbit) },
 
+    #if 0
     { MP_OBJ_NEW_QSTR(MP_QSTR_RATE_1MBIT), MP_OBJ_NEW_SMALL_INT(RADIO_MODE_MODE_Nrf_1Mbit) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_RATE_2MBIT), MP_OBJ_NEW_SMALL_INT(RADIO_MODE_MODE_Nrf_2Mbit) },
+    #endif
 };
 
 STATIC MP_DEFINE_CONST_DICT(radio_module_globals, radio_module_globals_table);

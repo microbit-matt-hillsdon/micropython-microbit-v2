@@ -31,6 +31,7 @@
 #include "py/mphal.h"
 #include "drv_radio.h"
 
+#if 0
 #define RADIO_PACKET_OVERHEAD (1 + 1 + 4) // 1 byte for len, 1 byte for RSSI, 4 bytes for time
 
 static uint8_t *rx_buf_end = NULL; // pointer to the end of the allocated RX queue
@@ -75,8 +76,10 @@ void microbit_radio_irq_handler(void) {
         NRF_RADIO->TASKS_START = 1;
     }
 }
+#endif
 
 void microbit_radio_enable(microbit_radio_config_t *config) {
+    #if 0
     microbit_radio_disable();
 
     // allocate tx and rx buffers
@@ -144,9 +147,11 @@ void microbit_radio_enable(microbit_radio_config_t *config) {
 
     NRF_RADIO->EVENTS_END = 0;
     NRF_RADIO->TASKS_START = 1;
+    #endif
 }
 
 void microbit_radio_disable(void) {
+    #if 0
     NVIC_DisableIRQ(RADIO_IRQn);
     NRF_RADIO->EVENTS_DISABLED = 0;
     NRF_RADIO->TASKS_DISABLE = 1;
@@ -158,9 +163,11 @@ void microbit_radio_disable(void) {
         m_del(uint8_t, MP_STATE_PORT(radio_buf), rx_buf_end - MP_STATE_PORT(radio_buf));
         MP_STATE_PORT(radio_buf) = NULL;
     }
+    #endif
 }
 
 void microbit_radio_update_config(microbit_radio_config_t *config) {
+    #if 0
     // disable radio
     NVIC_DisableIRQ(RADIO_IRQn);
     NRF_RADIO->EVENTS_DISABLED = 0;
@@ -187,10 +194,12 @@ void microbit_radio_update_config(microbit_radio_config_t *config) {
 
     NVIC_ClearPendingIRQ(RADIO_IRQn);
     NVIC_EnableIRQ(RADIO_IRQn);
+    #endif
 }
 
 // This assumes the radio is enabled.
 void microbit_radio_send(const void *buf, size_t len, const void *buf2, size_t len2) {
+    #if 0
     // transmission will occur synchronously
     NVIC_DisableIRQ(RADIO_IRQn);
 
@@ -246,9 +255,11 @@ void microbit_radio_send(const void *buf, size_t len, const void *buf2, size_t l
 
     NVIC_ClearPendingIRQ(RADIO_IRQn);
     NVIC_EnableIRQ(RADIO_IRQn);
+    #endif
 }
 
 const uint8_t *microbit_radio_peek(void) {
+    #if 0
     // Disable the radio IRQ while we peek for packet.
     NVIC_DisableIRQ(RADIO_IRQn);
 
@@ -264,9 +275,12 @@ const uint8_t *microbit_radio_peek(void) {
     NVIC_EnableIRQ(RADIO_IRQn);
 
     return buf;
+    #endif
+    return NULL;
 }
 
 void microbit_radio_pop(void) {
+    #if 0
     // Disable the radio IRQ while we pop the packet.
     NVIC_DisableIRQ(RADIO_IRQn);
 
@@ -282,4 +296,5 @@ void microbit_radio_pop(void) {
 
     // Re-enable the radio IRQ.
     NVIC_EnableIRQ(RADIO_IRQn);
+    #endif
 }

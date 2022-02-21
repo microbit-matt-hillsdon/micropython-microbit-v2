@@ -28,15 +28,15 @@
 #include "extmod/machine_mem.h"
 #include "extmod/machine_pulse.h"
 #include "modmicrobit.h"
-#include "nrf.h"
+//#include "nrf.h"
 
 #if MICROPY_PY_MACHINE
 
 // Returns a string of 8 bytes (64 bits), which is the unique ID for the MCU
 STATIC mp_obj_t machine_unique_id(void) {
     uint32_t dev_id[2];
-    dev_id[0] = NRF_FICR->DEVICEID[0];
-    dev_id[1] = NRF_FICR->DEVICEID[1];
+    dev_id[0] = 0;//NRF_FICR->DEVICEID[0];
+    dev_id[1] = 0;//NRF_FICR->DEVICEID[1];
     return mp_obj_new_bytes((const void*)&dev_id, 8);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_unique_id_obj, machine_unique_id);
@@ -49,16 +49,16 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_freq_obj, machine_freq);
 
 // Disable interrupt requests
 STATIC mp_obj_t machine_disable_irq(void) {
-    uint32_t state = __get_PRIMASK();
-    __disable_irq();
+    uint32_t state = 0;//__get_PRIMASK();
+    //__disable_irq();
     return mp_obj_new_int(state);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_disable_irq_obj, machine_disable_irq);
 
 // Enable interrupt requests
 STATIC mp_obj_t machine_enable_irq(mp_obj_t state_in) {
-    uint32_t state = mp_obj_get_int(state_in);
-    __set_PRIMASK(state);
+    //uint32_t state = mp_obj_get_int(state_in);
+    //__set_PRIMASK(state);
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(machine_enable_irq_obj, machine_enable_irq);
