@@ -26,15 +26,34 @@
 
 var Module = {};
 
+
 var mainProgram = function() {
     mp_js_init = Module.cwrap('mp_js_init', 'null', ['number']);
     mp_js_init_repl = Module.cwrap('mp_js_init_repl', 'null', ['null']);
     mp_js_process_char = Module.cwrap('mp_js_process_char', 'number', ['number'], {async: true});
 
     MP_JS_EPOCH = (new Date()).getTime();
-
     mp_js_init(64 * 1024);
     mp_js_init_repl();
+
+    window.addEventListener("message", (e) => {
+        switch (e.data.kind) {
+            case "serial_input": {
+                // Pasted data from clipboard will likely contain
+                // LF as EOL chars.
+                const data = e.data.data.replace(/\n/g, "\r");
+                for (var i = 0; i < data.length; i++) {
+                    if (mp_js_process_char(data.charCodeAt(i))) {
+                        // exit for soft reset
+                    }
+                }
+                break;
+            }
+            // to prototype:
+            // reset
+            // something to provide a program (filesystem) etc.
+        }
+    })
 }
 
 Module["onRuntimeInitialized"] = mainProgram;

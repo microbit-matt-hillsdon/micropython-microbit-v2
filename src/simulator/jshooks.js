@@ -27,13 +27,11 @@
 
 mergeInto(LibraryManager.library, {
     mp_js_write: function(ptr, len) {
-        for (var i = 0; i < len; ++i) {
-            var c = String.fromCharCode(getValue(ptr + i, 'i8'));
-            var mp_js_stdout = document.getElementById('mp_js_stdout');
-            var print = new Event('print');
-            print.data = c;
-            mp_js_stdout.dispatchEvent(print);
-        }
+        const data = UTF8ToString(ptr, len);
+        window.parent.postMessage({
+            kind: "serial_output",
+            data
+        });
     },
 
     mp_js_ticks_ms: function() {
@@ -41,16 +39,23 @@ mergeInto(LibraryManager.library, {
     },
 
     mp_js_hal_init: function() {
-        var c = document.getElementById('uBitDisplay');
-        var ctx = c.getContext('2d');
-        ctx.fillStyle = `rgb(0, 0, 0)`;
-        ctx.fillRect(0, 0, 200, 200);
+        ui = new BoardUI();
     },
 
     mp_js_hal_display_set_pixel: function(x, y, value) {
-        var c = document.getElementById('uBitDisplay');
-        var ctx = c.getContext('2d');
-        ctx.fillStyle = `rgb(${value}, 0, 0)`;
-        ctx.fillRect(40 * x, 40 * y, 40, 40);
+        ui.display.setPixel(x, y, value);
     },
+
+    mp_js_hal_button_get_presses: function(button) {
+        return ui.buttons[button].getAndClearPresses()
+    },
+
+    mp_js_hal_button_is_pressed: function(button) {
+        return ui.buttons[button].isPressed();
+    },
+
+    mp_js_hal_display_read_light_level: function() {
+        // Might want to track that the sensor is in use.
+        return ui.display.lightLevel.value;
+    }
 });

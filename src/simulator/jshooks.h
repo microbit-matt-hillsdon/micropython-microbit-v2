@@ -28,4 +28,9 @@ void mp_js_write(const char *str, size_t len);
 int mp_js_ticks_ms(void);
 
 void mp_js_hal_init(void);
+
 void mp_js_hal_display_set_pixel(int x, int y, int value);
+int mp_js_hal_display_read_light_level(void);
+
+int mp_js_hal_button_get_presses(int button);
+bool mp_js_hal_button_is_pressed(int button);

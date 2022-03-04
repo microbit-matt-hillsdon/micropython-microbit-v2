@@ -1,15 +1,26 @@
 <!doctype html>
 <html>
   <head>
+    <title>Example simulator embedding</title>
+    <style>
+      body {
+        display: flex;
+      }
+      iframe {
+        width: 400px;
+        height: 100vh;
+      }
+    </style>
   </head>
   <body>
-    <div id='mp_js_stdout'></div>
-    <div id="term"></div>
-    <canvas id='uBitDisplay' width=200 height=200 style="margin:20px"></canvas>
 
+    <iframe id="simulator" src="simulator.html" title="Simulator" frameborder="0" scrolling="no"></iframe>
+    <div id="term"></div>
     <script src="term.js"></script>
     <script>
-      term = new Terminal({
+      // Connect the simulator REPL to a terminal.
+      const simulator = document.querySelector("#simulator").contentWindow;
+      const term = new Terminal({
         cols: 80,
         rows: 24,
         useStyle: true,
@@ -19,20 +30,19 @@
       term.open(document.getElementById("term"));
       term.removeAllListeners('data');
       term.on('data', function(data) {
-        // Pasted data from clipboard will likely contain
-        // LF as EOL chars.
-        data = data.replace(/\n/g, "\r");
-        for (var i = 0; i < data.length; i++) {
-          if (mp_js_process_char(data.charCodeAt(i))) {
-            // exit for soft reset
+        simulator.postMessage({
+          kind: "serial_input",
+          data
+        });
+      });
+      window.addEventListener("message", (e) => {
+        switch (e.data.kind) {
+          case "serial_output": {
+            term.write(e.data.data);
+            break;
           }
         }
-      });
-      mp_js_stdout.addEventListener('print', function(e) {
-        term.write(e.data);
-      }, false);
-
+      })
     </script>
-    <script src="build/micropython.js"></script>
   </body>
 </html>

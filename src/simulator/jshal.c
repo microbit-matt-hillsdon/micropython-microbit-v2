@@ -266,6 +266,8 @@ int microbit_hal_spi_transfer(size_t len, const uint8_t *src, uint8_t *dest) {
     return 0;
 }
 
+static uint16_t button_state[2];
+
 int microbit_hal_button_state(int button, int *was_pressed, int *num_presses) {
     /*
     Button *b = button_obj[button];
@@ -289,7 +291,27 @@ int microbit_hal_button_state(int button, int *was_pressed, int *num_presses) {
     }
     return b->isPressed();
     */
-    return 0;
+    // Unlike CODAL, MicroPython clears the state for num_presses count
+    // and was_pressed independently so we keep the state here.
+    if (was_pressed != NULL || num_presses != NULL) {
+        uint16_t state = button_state[button];
+        int p = mp_js_hal_button_get_presses(button);
+        if (p) {
+            // Update state based on number of presses since last call.
+            // Low bit is "was pressed at least once", upper bits are "number of presses".
+            state = (state + (p << 1)) | 1;
+        }
+        if (was_pressed != NULL) {
+            *was_pressed = state & 1;
+            state &= ~1;
+        }
+        if (num_presses != NULL) {
+            *num_presses = state >> 1;
+            state &= 1;
+        }
+        button_state[button] = state;
+    }
+    return mp_js_hal_button_is_pressed(button);
 }
 
 void microbit_hal_display_enable(int value) {
@@ -331,10 +353,7 @@ void microbit_hal_display_set_pixel(int x, int y, int bright) {
 }
 
 int microbit_hal_display_read_light_level(void) {
-    /*
-    return uBit.display.readLightLevel();
-    */
-    return 0;
+    return mp_js_hal_display_read_light_level();
 }
 
 void microbit_hal_accelerometer_get_sample(int axis[3]) {
